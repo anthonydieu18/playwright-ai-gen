@@ -169,6 +169,35 @@ test('User can enter valid credentials and successfully log in', async ({ page }
 });
 ```
 
+## Demo Output
+
+When you run `npm run generate`, the tool processes the requirements and outputs both Gherkin and Playwright tests:
+
+```bash
+🚀 Playwright AI Test Generator
+
+📖 Reading requirement from: requirement.json
+🤖 Generating Gherkin test cases...
+✅ Gherkin test cases saved to: tests/proj-123.feature
+
+Feature: User Login Feature
+  Scenario 1: User can navigate to the login page
+    Given I am on the home page
+    When I click on the login link
+    Then I should be navigated to the login page
+    Then I should see the login form
+  ...
+
+🎭 Converting Gherkin to Playwright tests...
+✅ Playwright test saved to: tests/proj-123.spec.ts
+
+🎉 Test generation complete!
+```
+
+The generated files include:
+- **Gherkin files** (`.feature`): Human-readable test scenarios in Given/When/Then format
+- **Playwright tests** (`.spec.ts`): Executable TypeScript test scripts
+
 ## Development
 
 ### Build the Project
