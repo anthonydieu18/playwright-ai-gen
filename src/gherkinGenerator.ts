@@ -38,13 +38,20 @@ export class GherkinGenerator {
     // Use AI-like logic to extract key actions and outcomes
     const lowerCriteria = criteria.toLowerCase();
 
-    // Determine scenario type based on keywords
-    if (lowerCriteria.includes('error') || lowerCriteria.includes('invalid')) {
+    // Determine scenario type based on keywords - order matters!
+    // Check for specific patterns first, then broader ones
+    if (lowerCriteria.includes('error') || lowerCriteria.includes('invalid') || lowerCriteria.includes('out-of-stock')) {
       return this.generateErrorScenario(featureTitle, criteria, scenarioNumber);
-    } else if (lowerCriteria.includes('navigate') || lowerCriteria.includes('access')) {
-      return this.generateNavigationScenario(featureTitle, criteria, scenarioNumber);
     } else if (lowerCriteria.includes('log out') || lowerCriteria.includes('logout')) {
       return this.generateLogoutScenario(featureTitle, criteria, scenarioNumber);
+    } else if (lowerCriteria.includes('view') && lowerCriteria.includes('cart')) {
+      return this.generateCartViewRemoveScenario(featureTitle, criteria, scenarioNumber);
+    } else if (lowerCriteria.includes('remove') && lowerCriteria.includes('cart')) {
+      return this.generateCartViewRemoveScenario(featureTitle, criteria, scenarioNumber);
+    } else if (lowerCriteria.includes('add') && lowerCriteria.includes('cart')) {
+      return this.generateCartActionScenario(featureTitle, criteria, scenarioNumber);
+    } else if (lowerCriteria.includes('navigate') || lowerCriteria.includes('access') || lowerCriteria.includes('listing')) {
+      return this.generateNavigationScenario(featureTitle, criteria, scenarioNumber);
     } else {
       return this.generateSuccessScenario(featureTitle, criteria, scenarioNumber);
     }
@@ -82,6 +89,21 @@ export class GherkinGenerator {
     criteria: string,
     scenarioNumber: number
   ): GherkinScenario {
+    const lowerCriteria = criteria.toLowerCase();
+    
+    if (lowerCriteria.includes('out-of-stock') || lowerCriteria.includes('stock')) {
+      return {
+        feature: featureTitle,
+        scenario: `Scenario ${scenarioNumber}: ${criteria}`,
+        given: ['I am on the product page for "Out of Stock Product"'],
+        when: ['I click the "Add to Cart" button'],
+        then: [
+          'I should see an error message "This item is out of stock"',
+          'The item should not be added to my cart',
+        ],
+      };
+    }
+    
     return {
       feature: featureTitle,
       scenario: `Scenario ${scenarioNumber}: ${criteria}`,
@@ -106,6 +128,21 @@ export class GherkinGenerator {
     criteria: string,
     scenarioNumber: number
   ): GherkinScenario {
+    const lowerCriteria = criteria.toLowerCase();
+    
+    if (lowerCriteria.includes('product') || lowerCriteria.includes('listing')) {
+      return {
+        feature: featureTitle,
+        scenario: `Scenario ${scenarioNumber}: ${criteria}`,
+        given: ['I am on the home page'],
+        when: ['I click on the products link'],
+        then: [
+          'I should be navigated to the product listing page',
+          'I should see a list of products',
+        ],
+      };
+    }
+    
     return {
       feature: featureTitle,
       scenario: `Scenario ${scenarioNumber}: ${criteria}`,
@@ -136,6 +173,73 @@ export class GherkinGenerator {
         'I should be redirected to the home page',
       ],
     };
+  }
+
+  /**
+   * Generate a shopping cart action scenario
+   */
+  private generateCartActionScenario(
+    featureTitle: string,
+    criteria: string,
+    scenarioNumber: number
+  ): GherkinScenario {
+    const lowerCriteria = criteria.toLowerCase();
+    
+    if (lowerCriteria.includes('add')) {
+      return {
+        feature: featureTitle,
+        scenario: `Scenario ${scenarioNumber}: ${criteria}`,
+        given: ['I am on the product page for "Test Product"'],
+        when: [
+          'I click the "Add to Cart" button',
+        ],
+        then: [
+          'I should see a success message "Product added to cart"',
+          'The cart count should increase by 1',
+        ],
+      };
+    }
+    
+    return this.generateSuccessScenario(featureTitle, criteria, scenarioNumber);
+  }
+
+  /**
+   * Generate a cart view/remove scenario
+   */
+  private generateCartViewRemoveScenario(
+    featureTitle: string,
+    criteria: string,
+    scenarioNumber: number
+  ): GherkinScenario {
+    const lowerCriteria = criteria.toLowerCase();
+    
+    if (lowerCriteria.includes('view')) {
+      return {
+        feature: featureTitle,
+        scenario: `Scenario ${scenarioNumber}: ${criteria}`,
+        given: ['I have items in my shopping cart'],
+        when: ['I navigate to the cart page'],
+        then: [
+          'I should see all items in my cart',
+          'I should see the total price',
+        ],
+      };
+    }
+    
+    if (lowerCriteria.includes('remove')) {
+      return {
+        feature: featureTitle,
+        scenario: `Scenario ${scenarioNumber}: ${criteria}`,
+        given: ['I am on the cart page', 'I have "Test Product" in my cart'],
+        when: ['I click the remove button for "Test Product"'],
+        then: [
+          'The item should be removed from the cart',
+          'The cart count should decrease by 1',
+        ],
+      };
+    }
+    
+    return this.generateSuccessScenario(featureTitle, criteria, scenarioNumber);
   }
 
   /**

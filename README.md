@@ -42,10 +42,12 @@ cd playwright-ai-gen
 npm install
 ```
 
-3. Install Playwright browsers:
+3. Install Playwright browsers (for running the generated tests):
 ```bash
 npm run playwright:install
 ```
+
+**Note:** If you encounter download errors when installing browsers, you can skip this step initially and focus on generating tests. The test generation works without browser installation.
 
 ## Usage
 
@@ -71,6 +73,14 @@ You can provide your own requirement JSON file:
 npm run build
 node dist/index.js path/to/your/requirement.json path/to/output/directory
 ```
+
+**Example with the included shopping cart requirement:**
+
+```bash
+node dist/index.js requirement-shopping.json tests
+```
+
+This demonstrates that the system can handle multiple different requirement types and generate appropriate tests for each.
 
 ### Requirement JSON Format
 

@@ -93,8 +93,24 @@ export class PlaywrightGenerator {
       return `${indent}// When: ${step}\n${indent}await page.fill('input[name="${field}"]', ${value});\n`;
     }
 
-    // Assertion steps - visibility
-    if (lowerStep.includes('should see') || lowerStep.includes('should be navigated')) {
+    // Success messages with quoted text (must be before general "should see")
+    if (lowerStep.includes('should see') && step.includes('"')) {
+      const message = this.extractQuotedValue(step);
+      return `${indent}// Then: ${step}\n${indent}await expect(page.locator('.message')).toContainText(${message});\n`;
+    }
+
+    // List visibility (must be before general "should see")
+    if (lowerStep.includes('should see a list') || lowerStep.includes('should see all')) {
+      return `${indent}// Then: ${step}\n${indent}await expect(page.locator('.product-list, .cart-items')).toBeVisible();\n`;
+    }
+
+    // Total price
+    if (lowerStep.includes('total price')) {
+      return `${indent}// Then: ${step}\n${indent}await expect(page.locator('.total-price')).toBeVisible();\n`;
+    }
+
+    // Assertion steps - visibility (general fallback for "should see")
+    if (lowerStep.includes('should see')) {
       const text = this.extractTextToVerify(step);
       return `${indent}// Then: ${step}\n${indent}await expect(page.locator('body')).toContainText('${text}');\n`;
     }
@@ -108,12 +124,37 @@ export class PlaywrightGenerator {
     // Logged in state
     if (lowerStep.includes('i am logged in')) {
       const username = this.extractQuotedValue(step);
-      return `${indent}// Given: ${step}\n${indent}// Setup: Login as ${username}\n${indent}await page.goto('/login');\n${indent}await page.fill('input[name="username"]', ${username});\n${indent}await page.fill('input[name="password"]', '"testpass123"');\n${indent}await page.click('button[type="submit"]');\n`;
+      return `${indent}// Given: ${step}\n${indent}// Setup: Login as ${username}\n${indent}await page.goto('/login');\n${indent}await page.fill('input[name="username"]', ${username});\n${indent}await page.fill('input[name="password"]', "testpass123");\n${indent}await page.click('button[type="submit"]');\n`;
     }
 
     // Logged out state
     if (lowerStep.includes('should be logged out')) {
       return `${indent}// Then: ${step}\n${indent}await expect(page.locator('.user-menu')).not.toBeVisible();\n`;
+    }
+
+    // Cart-related steps - Given state
+    if (lowerStep.includes('i have items') || lowerStep.includes('i have "')) {
+      const item = this.extractQuotedValue(step);
+      return `${indent}// Given: ${step}\n${indent}// Setup: Add item to cart\n${indent}await page.goto('/products');\n${indent}await page.click(\`button[data-product=\${${item}}]\`);\n`;
+    }
+
+    // Cart count assertions
+    if (lowerStep.includes('cart count should')) {
+      if (lowerStep.includes('increase')) {
+        return `${indent}// Then: ${step}\n${indent}const cartCount = await page.locator('.cart-count').textContent();\n${indent}await expect(parseInt(cartCount || '0')).toBeGreaterThan(0);\n`;
+      } else if (lowerStep.includes('decrease')) {
+        return `${indent}// Then: ${step}\n${indent}await expect(page.locator('.cart-count')).toBeVisible();\n`;
+      }
+    }
+
+    // Item removal
+    if (lowerStep.includes('should be removed')) {
+      return `${indent}// Then: ${step}\n${indent}await expect(page.locator('.cart-item')).not.toBeVisible();\n`;
+    }
+
+    // Item should not be added
+    if (lowerStep.includes('should not be added')) {
+      return `${indent}// Then: ${step}\n${indent}await expect(page.locator('.cart-count')).not.toContainText(/[1-9]/);\n`;
     }
 
     // Default fallback
@@ -127,6 +168,8 @@ export class PlaywrightGenerator {
     const lowerStep = step.toLowerCase();
     if (lowerStep.includes('login')) return 'login';
     if (lowerStep.includes('dashboard')) return 'dashboard';
+    if (lowerStep.includes('cart')) return 'cart';
+    if (lowerStep.includes('product')) return 'products';
     if (lowerStep.includes('home')) return 'home';
     return 'index';
   }
@@ -136,8 +179,17 @@ export class PlaywrightGenerator {
    */
   private extractElement(step: string): string {
     const lowerStep = step.toLowerCase();
+    
+    // Handle quoted button text
+    if (step.includes('"')) {
+      const buttonText = this.extractQuotedValue(step);
+      return `button:has-text(${buttonText})`;
+    }
+    
     if (lowerStep.includes('login')) return 'button[type="submit"]';
     if (lowerStep.includes('logout')) return 'button.logout';
+    if (lowerStep.includes('remove')) return 'button.remove-item';
+    if (lowerStep.includes('products link')) return 'a[href*="products"]';
     if (lowerStep.includes('link')) return 'a';
     return 'button';
   }
