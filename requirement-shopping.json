@@ -1,0 +1,15 @@
+{
+  "id": "PROJ-456",
+  "title": "Shopping Cart Feature",
+  "description": "As a user, I want to be able to add items to my shopping cart so that I can purchase them later",
+  "acceptanceCriteria": [
+    "User can navigate to the product listing page",
+    "User can add a product to the shopping cart",
+    "User sees an error message when adding an out-of-stock item",
+    "User can view items in the shopping cart",
+    "User can remove items from the shopping cart"
+  ],
+  "priority": "Medium",
+  "assignee": "Jane Smith",
+  "status": "Ready for Development"
+}

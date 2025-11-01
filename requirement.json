@@ -1,0 +1,14 @@
+{
+  "id": "PROJ-123",
+  "title": "User Login Feature",
+  "description": "As a user, I want to be able to log in to the application so that I can access my account",
+  "acceptanceCriteria": [
+    "User can navigate to the login page",
+    "User can enter valid credentials and successfully log in",
+    "User sees an error message when entering invalid credentials",
+    "User can log out after logging in"
+  ],
+  "priority": "High",
+  "assignee": "John Doe",
+  "status": "In Progress"
+}
