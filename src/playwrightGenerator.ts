@@ -132,10 +132,15 @@ export class PlaywrightGenerator {
       return `${indent}// Then: ${step}\n${indent}await expect(page.locator('.user-menu')).not.toBeVisible();\n`;
     }
 
-    // Cart-related steps - Given state
-    if (lowerStep.includes('i have items') || lowerStep.includes('i have "')) {
+    // Cart-related steps - Given state with specific item
+    if (lowerStep.includes('i have "') && step.includes('"')) {
       const item = this.extractQuotedValue(step);
       return `${indent}// Given: ${step}\n${indent}// Setup: Add item to cart\n${indent}await page.goto('/products');\n${indent}await page.click(\`button[data-product=\${${item}}]\`);\n`;
+    }
+
+    // Cart-related steps - Given state with items (no specific item)
+    if (lowerStep.includes('i have items')) {
+      return `${indent}// Given: ${step}\n${indent}// Setup: Add items to cart\n${indent}await page.goto('/products');\n${indent}await page.click('button.add-to-cart:first-of-type');\n`;
     }
 
     // Cart count assertions

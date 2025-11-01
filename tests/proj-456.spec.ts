@@ -37,9 +37,9 @@ test.describe('Shopping Cart Feature', () => {
 
   test('User can view items in the shopping cart', async ({ page }) => {
     // Given: I have items in my shopping cart
-    // Setup: Add item to cart
+    // Setup: Add items to cart
     await page.goto('/products');
-    await page.click(`button[data-product=${""}]`);
+    await page.click('button.add-to-cart:first-of-type');
     // Given: I navigate to the cart page
     await page.goto('/cart');
     // Then: I should see all items in my cart
