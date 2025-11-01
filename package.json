@@ -1,0 +1,23 @@
+{
+  "name": "playwright-ai-gen",
+  "version": "1.0.0",
+  "description": "AI-powered Playwright test generator that converts Jira requirements to E2E tests",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "generate": "npm run build && node dist/index.js",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "playwright:install": "playwright install chromium"
+  },
+  "keywords": ["playwright", "testing", "ai", "gherkin", "e2e", "automation"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^24.9.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
